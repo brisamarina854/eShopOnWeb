@@ -45,6 +45,6 @@ jobs:
       uses: azure/arm-deploy@v1
       with:
         subscriptionId: 'T8d84a689-f53c-4332-a3f3-dafb44c7d887'
-        resourceGroupName: 'rg-eshoponweb-westeurope'
+        resourceGroupName: 'rg-eshoponweb-eastus'
         template: ./infra/main.bicep
-        parameters: webAppName='devops-webapp-westeurope-2431025443' sku='S1'
+        parameters: webAppName='devops-webapp-eastus-281315170' sku='S1'
