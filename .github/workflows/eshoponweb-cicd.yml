@@ -1,0 +1,21 @@
+name: eShopOnWeb Build and Test
+
+on: [push]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Build, test and publish
+      run: |
+        dotnet build src/Web/Web.csproj --configuration Release
+        dotnet test tests/UnitTests/UnitTests.csproj
+        dotnet publish src/Web/Web.csproj -c Release -o ./publish
