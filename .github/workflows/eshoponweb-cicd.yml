@@ -1,6 +1,6 @@
 name: eShopOnWeb Build and Test
 
-on: [push]
+on: workflow_dispatch
 
 jobs:
   build-and-test:
@@ -8,14 +8,43 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
-
+      
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '8.0.x'
-
+        
     - name: Build, test and publish
       run: |
         dotnet build src/Web/Web.csproj --configuration Release
         dotnet test tests/UnitTests/UnitTests.csproj
         dotnet publish src/Web/Web.csproj -c Release -o ./publish
+        
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: web-artifact
+        path: ./publish
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+    - name: Download Artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: web-artifact
+        path: ./publish
+
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy Azure App Service
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: 'T8d84a689-f53c-4332-a3f3-dafb44c7d887'
+        resourceGroupName: 'rg-eshoponweb-westeurope'
+        template: ./infra/webapp.bicep
+        parameters: webAppName='devops-webapp-westeurope-2431025443' sku='S1'
